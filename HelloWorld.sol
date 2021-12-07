@@ -1,7 +1,39 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
+library SafeMath {
+  function sum(uint a, uint b) internal pure returns(uint) {
+    uint c = a + b;
+    require(c >= a, "Sum Overflow!");
+    return c;
+  }
+
+  function sub(uint a, uint b) internal pure returns(uint) {
+    require(b <= a, "Sub Underflow!");
+    return a - b;
+  }
+
+  function mul(uint a, uint b) internal pure returns(uint) {
+    if(a == 0) {
+      return 0;
+    }
+    uint c = a * b;
+    require(c / a == b, "Mul Overflow!");
+    return c;
+  }
+
+  function div(uint a, uint b) internal pure returns(uint) {
+    return a / b;
+  }
+
+  function pow(uint a, uint b) internal pure returns(uint) {
+    return a ** b;
+  }
+}
+
 contract HelloWorld {
+  using SafeMath for uint;
+
   string public text;
   uint public number;
   address public userAddress;
@@ -17,7 +49,7 @@ contract HelloWorld {
   function setNumber(uint myNumber) public payable {
     require(msg.value >= 1 ether, "Insufficient ETH sent.");
 
-    balances[msg.sender] += msg.value;
+    balances[msg.sender] = balances[msg.sender].sum(msg.value);
     number = myNumber;
     countInteraction();
   }
@@ -33,7 +65,7 @@ contract HelloWorld {
   }
 
   function countInteraction() private {
-    interactCount[msg.sender] += 1;
+    interactCount[msg.sender] = interactCount[msg.sender].sum(1);
   }
 
   function sendETH(address payable targetAddress) public payable {
@@ -48,27 +80,7 @@ contract HelloWorld {
     payable(msg.sender).transfer(amount);
   }
 
-  function sum(uint num1, uint num2) public pure returns(uint) {
-    return num1 + num2;
-  }
-
-  function sub(uint num1, uint num2) public pure returns(uint) {
-    return num1 - num2;
-  }
-
-  function mult(uint num1, uint num2) public pure returns(uint) {
-    return num1 * num2;
-  }
-
-  function div(uint num1, uint num2) public pure returns(uint) {
-    return num1 / num2;
-  }
-
-  function pow(uint num1, uint num2) public pure returns(uint) {
-    return num1 ** num2;
-  }
-
-  function sumStore(uint num1) public view returns(uint) {
-      return num1 + number;
+  function sumStore(uint a) public view returns(uint) {
+      return a.sum(number);
   }
 }
