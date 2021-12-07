@@ -92,7 +92,7 @@ contract HelloWorld is Ownable {
     targetAddress.transfer(msg.value);
   }
 
-  function withdraw() public {
+  function withdraw() onlyOwner public {
     require(balances[msg.sender] > 0, "Insufficient funds.");
 
     uint amount = balances[msg.sender];
@@ -102,5 +102,42 @@ contract HelloWorld is Ownable {
 
   function sumStore(uint a) public view returns(uint) {
       return a.sum(number);
+  }
+}
+
+contract Challange is Ownable {
+  using SafeMath for uint;
+
+  uint testNumberPrice = 25000000 gwei;
+
+  event NewPrice(uint newPrice);
+
+  // Tests number and charges for this operation
+  function testNumber(uint number) payable public returns(string memory returnText) {
+    require(number <= 10, "Number out of range.");
+    // Guarantees that the value charged is equal to (0,025 ether)*testNumberPrice
+    require(msg.value == testNumberPrice, "Wrong msg.value.");
+
+    // Updates the price
+    doubleTestNumberPrice();
+
+    // Returns the test response
+    if (number > 5) {
+      return "It's bigger than five.";
+    }
+    return "It's less than or equal to five.";
+  }
+
+  function doubleTestNumberPrice() private {
+    testNumberPrice = testNumberPrice.mul(2);
+
+    emit NewPrice(testNumberPrice);
+  }
+
+  // Withdraws a chosen amount 
+  function withdraw(uint amount) onlyOwner public {
+    require(address(this).balance > amount, "Insufficient funds.");
+
+    payable(owner).transfer(amount);
   }
 }
