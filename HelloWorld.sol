@@ -7,13 +7,17 @@ contract HelloWorld {
   address public userAddress;
   bool public answer;
   mapping (address => uint) public interactCount;
+  mapping (address => uint) public balances;
 
   function setText(string memory myText) public {
     text = myText;
     countInteraction();
   }
 
-  function setNumber(uint myNumber) public {
+  function setNumber(uint myNumber) public payable {
+    require(msg.value >= 1 ether, "Insufficient ETH sent.");
+
+    balances[msg.sender] += msg.value;
     number = myNumber;
     countInteraction();
   }
@@ -30,6 +34,18 @@ contract HelloWorld {
 
   function countInteraction() private {
     interactCount[msg.sender] += 1;
+  }
+
+  function sendETH(address payable targetAddress) public payable {
+    targetAddress.transfer(msg.value);
+  }
+
+  function withdraw() public {
+    require(balances[msg.sender] > 0, "Insufficient funds.");
+
+    uint amount = balances[msg.sender];
+    balances[msg.sender] = 0;
+    payable(msg.sender).transfer(amount);
   }
 
   function sum(uint num1, uint num2) public pure returns(uint) {
